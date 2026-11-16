@@ -1,0 +1,191 @@
+{
+  "users": [
+    {
+      "id": "user-admin-01",
+      "name": "Alex Rivera",
+      "email": "admin@brandguard.ai",
+      "salt": "0f8327469583659baf30210194eeb86f",
+      "passwordHash": "892997a9eae53181da8536892dd9344c930c056bcec06d2a02bfb9a1e9be9fa7a274cabb29c3f5bc3e0fbd42daa12f9d11ffb805b1cc9fb37ff234998b42afb6",
+      "role": "Admin",
+      "createdAt": "2026-11-16T03:57:00.733Z"
+    },
+    {
+      "id": "user-creator-01",
+      "name": "Jordan Lee",
+      "email": "creator@brandguard.ai",
+      "salt": "618253a98512971e3e0249f025f33008",
+      "passwordHash": "6804cc1ede8c3a81017996672ba3a1847ba9700e85c39dac28236ac8b33b424171fcfc13e3ef9ffea680a7aff0740fd579c295e710c0ea550ece759d3fcd58ff",
+      "role": "Creator",
+      "createdAt": "2026-11-16T03:57:00.735Z"
+    },
+    {
+      "id": "user-reviewer-01",
+      "name": "Taylor Morgan",
+      "email": "reviewer@brandguard.ai",
+      "salt": "f848bb1dc4d6d81b621b8d2c55b8affd",
+      "passwordHash": "f7fea1a8eb41875e953c2149db3ef67006e60e15002d1cff54d4b302dc476e6a6dec0aa3c1b0f3c78ba8161dc1963639498d1919e65f679183e6f9bfb1bf4ea4",
+      "role": "Reviewer",
+      "createdAt": "2026-11-16T03:57:00.735Z"
+    }
+  ],
+  "companySettings": {
+    "companyName": "Inkloom AI Global",
+    "brandGovernancePolicy": "Enterprise Strict (V3)",
+    "automatedAIGating": true,
+    "strictnessLevel": "High",
+    "updatedAt": "2026-11-16T03:57:00.735Z"
+  },
+  "guidelines": {
+    "brandName": "Inkloom AI",
+    "tagline": "The AI-Powered Narrative Continuity and Creative Operating System",
+    "mission": "Empower creators with continuous, brand-consistent storytelling at scale.",
+    "toneOfVoice": {
+      "primary": [
+        "Empowering",
+        "Visionary",
+        "Crisp",
+        "Trustworthy"
+      ],
+      "avoid": [
+        "Overly Technical Jargon",
+        "Hyperbolic Hype",
+        "Passive Voice",
+        "Aggressive Sales Clichés"
+      ],
+      "readingLevel": "Grade 8 to 11 (Accessible yet professional)"
+    },
+    "colorPalette": {
+      "primary": "#0284c7",
+      "secondary": "#0f172a",
+      "accent": "#10b981",
+      "background": "#090d16",
+      "neutral": "#64748b"
+    },
+    "typography": {
+      "primaryFont": "Plus Jakarta Sans",
+      "secondaryFont": "JetBrains Mono",
+      "minHeadingContrast": 4.5,
+      "minBodyContrast": 7
+    },
+    "forbiddenWords": [
+      {
+        "word": "delve",
+        "reason": "Common AI cliché; replace with \"explore\" or \"analyze\""
+      },
+      {
+        "word": "unleash",
+        "reason": "Overused buzzword; replace with \"activate\" or \"enable\""
+      },
+      {
+        "word": "game-changer",
+        "reason": "Hyperbolic marketing fluff; demonstrate actual value instead"
+      },
+      {
+        "word": "revolutionize",
+        "reason": "Unsubstantiated superlative; describe the specific efficiency"
+      },
+      {
+        "word": "100% error-free",
+        "reason": "Unverifiable legal liability claim"
+      }
+    ],
+    "requiredDisclaimers": [
+      {
+        "channel": "Social / Ads",
+        "text": "AI-assisted generation. Always verify with human editorial standards."
+      },
+      {
+        "channel": "Financial / Enterprise",
+        "text": "Results may vary based on deployment scale and domain data quality."
+      }
+    ],
+    "logoRules": {
+      "minClearanceSpacePx": 24,
+      "allowedVariations": [
+        "Full Color on Dark",
+        "Full Color on Light",
+        "Monochrome White"
+      ],
+      "prohibitedAlterations": [
+        "Do not stretch or distort",
+        "Do not place on busy backgrounds without gradient overlay"
+      ]
+    }
+  },
+  "submissions": [
+    {
+      "id": "sub-101",
+      "title": "Q1 Product Launch Announcement",
+      "channel": "LinkedIn",
+      "creatorId": "user-creator-01",
+      "creatorName": "Jordan Lee",
+      "contentType": "Text + Banner",
+      "originalContent": "We are thrilled to unleash our revolutionary platform that will delve deep into manuscript continuity! It guarantees 100% error-free writing.",
+      "suggestedContent": "We are excited to launch our intelligent platform that analyzes manuscript continuity with precision, helping teams craft consistent narratives at scale.",
+      "overallScore": 62,
+      "status": "Changes Requested",
+      "createdAt": "2026-11-14T03:57:00.735Z",
+      "violations": [
+        {
+          "type": "Forbidden Word",
+          "severity": "High",
+          "message": "Contains prohibited AI cliché: \"unleash\""
+        },
+        {
+          "type": "Forbidden Word",
+          "severity": "High",
+          "message": "Contains prohibited AI cliché: \"delve\""
+        },
+        {
+          "type": "Legal Liability",
+          "severity": "Critical",
+          "message": "Contains unverified guarantee: \"100% error-free\""
+        },
+        {
+          "type": "Missing Disclaimer",
+          "severity": "Medium",
+          "message": "Missing mandatory social media AI-assisted disclaimer."
+        }
+      ],
+      "visualAnalysis": {
+        "dominantColor": "#0284c7",
+        "paletteMatched": true,
+        "contrastRatio": 6.8,
+        "contrastStatus": "Pass (WCAG AA)"
+      },
+      "reviews": [
+        {
+          "reviewerId": "user-reviewer-01",
+          "reviewerName": "Taylor Morgan",
+          "decision": "Changes Requested",
+          "comment": "Please accept the AI suggested rewrite to eliminate the banned buzzwords and include the mandatory AI disclaimer.",
+          "timestamp": "2026-11-15T03:57:00.735Z"
+        }
+      ]
+    },
+    {
+      "id": "sub-102",
+      "title": "Brand Consistency Whitepaper Summary",
+      "channel": "Blog",
+      "creatorId": "user-creator-01",
+      "creatorName": "Jordan Lee",
+      "contentType": "Text",
+      "originalContent": "Maintaining brand consistency across decentralized AI workflows requires a continuous governance architecture rather than periodic human spot-checks.",
+      "suggestedContent": "Maintaining brand consistency across decentralized AI workflows requires a continuous governance architecture rather than periodic human spot-checks.",
+      "overallScore": 96,
+      "status": "Approved",
+      "createdAt": "2026-11-12T03:57:00.735Z",
+      "violations": [],
+      "visualAnalysis": null,
+      "reviews": [
+        {
+          "reviewerId": "user-reviewer-01",
+          "reviewerName": "Taylor Morgan",
+          "decision": "Approved",
+          "comment": "Clean, professional tone matching Inkloom AI voice perfectly.",
+          "timestamp": "2026-11-13T03:57:00.735Z"
+        }
+      ]
+    }
+  ]
+}

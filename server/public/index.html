@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrandGuard AI – Intelligent Brand Governance Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              500: '#0284c7',
+              600: '#0369a1',
+              900: '#0c4a6e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- ================= AUTHENTICATION MODAL OVERLAY ================= -->
+  <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden my-8">
+      
+      <!-- Brand Header -->
+      <div class="p-6 bg-gradient-to-b from-slate-800/60 to-transparent border-b border-slate-800 text-center">
+        <div class="inline-flex w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 items-center justify-center shadow-lg shadow-cyan-500/20 mb-3">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-white tracking-tight flex items-center justify-center gap-1.5">
+          BrandGuard <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">AI</span>
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">Enterprise Brand Governance & Continuity</p>
+      </div>
+
+      <!-- Auth Tabs: Login / Register / Forgot -->
+      <div class="flex border-b border-slate-800 bg-slate-950/50">
+        <button id="authTabLogin" onclick="switchAuthView('login')" class="flex-1 py-3 text-xs font-semibold text-cyan-400 border-b-2 border-cyan-500 transition-all">Sign In</button>
+        <button id="authTabRegister" onclick="switchAuthView('register')" class="flex-1 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all">Create Account</button>
+        <button id="authTabForgot" onclick="switchAuthView('forgot')" class="flex-1 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all">Reset Password</button>
+      </div>
+
+      <!-- Alert Message Box -->
+      <div id="authAlert" class="hidden mx-6 mt-4 p-3 rounded-xl text-xs font-medium border"></div>
+
+      <!-- VIEW 1: LOGIN FORM -->
+      <form id="loginForm" onsubmit="handleLogin(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Work Email Address</label>
+          <input type="email" id="loginEmail" required placeholder="name@company.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Password</label>
+            <button type="button" onclick="switchAuthView('forgot')" class="text-xs text-cyan-400 hover:underline">Forgot password?</button>
+          </div>
+          <div class="relative">
+            <input type="password" id="loginPassword" required placeholder="Enter your password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 pr-10">
+            <button type="button" onclick="togglePasswordVisibility('loginPassword')" class="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="w-full py-2.5 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-cyan-500/20 transition-all">
+          Sign In to BrandGuard
+        </button>
+
+        <!-- Fast Demo Account Quick-Fill -->
+        <div class="pt-3 border-t border-slate-800">
+          <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 text-center">Fast Login Presets</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="fillCredentials('admin@brandguard.ai', 'BrandGuard@2026')" class="text-[11px] py-1.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 font-medium text-center">
+              👑 Admin
+            </button>
+            <button type="button" onclick="fillCredentials('creator@brandguard.ai', 'BrandGuard@2026')" class="text-[11px] py-1.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 font-medium text-center">
+              ✍️ Creator
+            </button>
+            <button type="button" onclick="fillCredentials('reviewer@brandguard.ai', 'BrandGuard@2026')" class="text-[11px] py-1.5 px-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 font-medium text-center">
+              🔍 Reviewer
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- VIEW 2: REGISTRATION FORM -->
+      <form id="registerForm" onsubmit="handleRegister(event)" class="hidden p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Full Name</label>
+          <input type="text" id="regName" required placeholder="e.g. Alex Morgan" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Work Email Address</label>
+          <input type="email" id="regEmail" required placeholder="alex@company.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Password (Min 6 Characters)</label>
+          <div class="relative">
+            <input type="password" id="regPassword" required minlength="6" placeholder="Choose a secure password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 pr-10">
+            <button type="button" onclick="togglePasswordVisibility('regPassword')" class="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Role Selection -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Select Your Role</label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="role-card cursor-pointer border border-cyan-500/60 bg-cyan-950/20 p-2.5 rounded-xl text-center flex flex-col items-center">
+              <input type="radio" name="regRole" value="Creator" checked class="hidden">
+              <span class="text-sm">✍️</span>
+              <span class="text-xs font-bold text-white mt-1">Creator</span>
+              <span class="text-[9px] text-slate-400 mt-0.5">Draft & Scan</span>
+            </label>
+            <label class="role-card cursor-pointer border border-slate-800 bg-slate-950 p-2.5 rounded-xl text-center flex flex-col items-center">
+              <input type="radio" name="regRole" value="Reviewer" class="hidden">
+              <span class="text-sm">🔍</span>
+              <span class="text-xs font-bold text-slate-300 mt-1">Reviewer</span>
+              <span class="text-[9px] text-slate-400 mt-0.5">Audit & Sign-off</span>
+            </label>
+            <label class="role-card cursor-pointer border border-slate-800 bg-slate-950 p-2.5 rounded-xl text-center flex flex-col items-center">
+              <input type="radio" name="regRole" value="Admin" class="hidden">
+              <span class="text-sm">👑</span>
+              <span class="text-xs font-bold text-slate-300 mt-1">Admin</span>
+              <span class="text-[9px] text-slate-400 mt-0.5">Full Governance</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="regSubmitBtn" class="w-full py-2.5 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-cyan-500/20 transition-all">
+          Create Account & Sign In
+        </button>
+      </form>
+
+      <!-- VIEW 3: FORGOT PASSWORD FORM -->
+      <form id="forgotForm" onsubmit="handleForgotPassword(event)" class="hidden p-6 space-y-4">
+        <p class="text-xs text-slate-400">Enter your registered email address to generate a secure password reset token.</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Account Email</label>
+          <input type="email" id="forgotEmail" required placeholder="name@company.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+        <button type="submit" class="w-full py-2.5 px-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-cyan-500/20 transition-all">
+          Generate Reset Token
+        </button>
+
+        <!-- Reset Token Simulation Area -->
+        <div id="resetTokenBox" class="hidden pt-3 border-t border-slate-800 space-y-3">
+          <div class="p-3 rounded-xl bg-slate-950 border border-cyan-800/60">
+            <p class="text-[11px] font-bold text-cyan-400 uppercase">Reset Token Generated:</p>
+            <p id="generatedResetToken" class="text-xs font-mono text-slate-300 break-all select-all mt-1"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Enter New Password</label>
+            <input type="password" id="resetNewPassword" minlength="6" placeholder="New secure password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white">
+          </div>
+          <button type="button" onclick="handleResetPassword()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold">
+            Confirm Password Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= AUTHENTICATED PLATFORM LAYOUT ================= -->
+  <div class="flex flex-1 min-h-screen">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-72 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0">
+      <div>
+        <!-- Brand Header -->
+        <div class="p-6 border-b border-slate-800 flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+              BrandGuard <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">AI</span>
+            </h1>
+            <p class="text-xs text-slate-400">Inkloom Governance Engine</p>
+          </div>
+        </div>
+
+        <!-- Authenticated User Profile Card -->
+        <div class="p-4 border-b border-slate-800 bg-slate-900/60">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div id="sideUserAvatar" class="w-8 h-8 rounded-full bg-cyan-600 flex items-center justify-center text-xs font-bold text-white shrink-0">U</div>
+              <div class="min-w-0">
+                <p id="sideUserName" class="text-xs font-bold text-white truncate">User Name</p>
+                <p id="sideUserEmail" class="text-[10px] text-slate-400 truncate">user@email.com</p>
+              </div>
+            </div>
+            <span id="sideUserRoleBadge" class="text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 bg-blue-500/20 text-blue-400 border border-blue-500/30">Admin</span>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="p-4 space-y-1">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 px-3 py-1">Governance Modules</p>
+          
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors bg-blue-600/15 text-blue-400 border border-blue-500/30">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+            <span>Dashboard</span>
+          </button>
+
+          <!-- Creator & Admin module -->
+          <button onclick="switchTab('studio')" id="nav-studio" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            <span>Content Studio & Scan</span>
+          </button>
+
+          <!-- Admin & Reviewer module -->
+          <button onclick="switchTab('guidelines')" id="nav-guidelines" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+            <span>Brand Guidelines</span>
+          </button>
+
+          <!-- Visual Checker -->
+          <button onclick="switchTab('visual')" id="nav-visual" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+            <span>Visual Brand Checker</span>
+          </button>
+
+          <!-- Reviewer & Admin module -->
+          <button onclick="switchTab('reviews')" id="nav-reviews" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+            <span>Review & Approvals</span>
+          </button>
+
+          <!-- Admin & Reviewer module -->
+          <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            <span>Analytics & Reports</span>
+          </button>
+
+          <!-- Content History -->
+          <button onclick="switchTab('history')" id="nav-history" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>Content History</span>
+          </button>
+
+          <!-- ADMIN ONLY: User Management & Settings -->
+          <div id="adminNavSection" class="pt-2 border-t border-slate-800">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-amber-500/80 px-3 py-1 flex items-center gap-1">
+              <span>Admin Management</span>
+            </p>
+            <button onclick="switchTab('users')" id="nav-users" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              <span>User Management</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span>Company Settings</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Logout & Active Session Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+        <div>
+          <p class="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> JWT Session Active
+          </p>
+        </div>
+        <button onclick="handleLogout()" class="px-2.5 py-1 text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded border border-rose-900/40 transition-all flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      
+      <!-- Topbar -->
+      <header class="h-16 border-b border-slate-800 bg-slate-950/40 backdrop-blur px-8 flex items-center justify-between sticky top-0 z-10">
+        <div class="flex items-center gap-3 text-sm text-slate-400">
+          <span>BrandGuard</span>
+          <span>/</span>
+          <span id="pageTitle" class="text-slate-100 font-semibold">Governance Control Center</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-xs text-right hidden sm:block">
+            <p id="topUserName" class="text-slate-200 font-semibold">Loading...</p>
+            <p id="topUserRole" class="text-[10px] text-cyan-400 font-mono">role:unknown</p>
+          </div>
+          <button onclick="handleLogout()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
+            Sign Out
+          </button>
+        </div>
+      </header>
+
+      <!-- Access Denied Banner for Role Protection -->
+      <div id="accessDeniedBanner" class="hidden m-8 p-6 rounded-2xl bg-rose-950/30 border border-rose-800/60 text-center space-y-2">
+        <span class="text-3xl">🚫</span>
+        <h3 class="text-lg font-bold text-white">Access Restricted</h3>
+        <p class="text-xs text-slate-400 max-w-md mx-auto" id="accessDeniedMessage">Your active user role does not hold permissions to access this governance module.</p>
+      </div>
+
+      <!-- Content Views Wrapper -->
+      <div id="contentViewsWrapper">
+        
+        <!-- Tab 1: Dashboard -->
+        <section id="tab-dashboard" class="p-8 space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white">Governance Control Center</h2>
+              <p class="text-sm text-slate-400 mt-1">Live compliance surveillance tracking brand adherence, prohibited terminology, and review queues.</p>
+            </div>
+            <button onclick="switchTab('studio')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
+              <span>+ Scan New Content</span>
+            </button>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="kpiContainer">
+            <div class="bg-slate-950/70 border border-slate-800 p-5 rounded-xl">
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Brand Adherence Rate</p>
+              <p class="text-3xl font-extrabold text-white mt-2" id="kpiAdherence">94.2%</p>
+              <p class="text-xs text-emerald-400 mt-2">↑ 3.8% vs last week</p>
+            </div>
+            <div class="bg-slate-950/70 border border-slate-800 p-5 rounded-xl">
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Pending Review Queue</p>
+              <p class="text-3xl font-extrabold text-amber-400 mt-2" id="kpiPending">2</p>
+              <p class="text-xs text-slate-400 mt-2">Requires reviewer action</p>
+            </div>
+            <div class="bg-slate-950/70 border border-slate-800 p-5 rounded-xl">
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Submissions</p>
+              <p class="text-3xl font-extrabold text-cyan-400 mt-2" id="kpiTotal">2</p>
+              <p class="text-xs text-slate-400 mt-2">Tracked across channels</p>
+            </div>
+            <div class="bg-slate-950/70 border border-slate-800 p-5 rounded-xl">
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Review Hours Saved</p>
+              <p class="text-3xl font-extrabold text-emerald-400 mt-2" id="kpiHours">5.0 hrs</p>
+              <p class="text-xs text-emerald-400 mt-2">By AI auto-correction</p>
+            </div>
+          </div>
+
+          <!-- Quick Scan Box -->
+          <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-bold text-white">Live AI Brand Sentinel</h3>
+                <p class="text-xs text-slate-400">Paste marketing copy below for instantaneous heuristic and tone compliance scan.</p>
+              </div>
+              <span class="text-xs text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-800/40">Real-time Rule Engine</span>
+            </div>
+            <textarea id="dashboardQuickInput" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500" placeholder="Type or paste text here (e.g. 'We unleash our platform to delve deep into narrative continuity with 100% error-free output.')..."></textarea>
+            <div class="mt-3 flex justify-end">
+              <button onclick="runQuickDashboardScan()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold transition-all">
+                Analyze Compliance Now
+              </button>
+            </div>
+            <div id="quickResult" class="hidden mt-4 p-4 rounded-xl border"></div>
+          </div>
+        </section>
+
+        <!-- Tab 2: Content Studio & Scan -->
+        <section id="tab-studio" class="hidden p-8 space-y-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Content Submission & AI Analysis Studio</h2>
+            <p class="text-sm text-slate-400 mt-1">Multi-channel drafting studio with real-time brand violation detection and intelligent auto-rewrites.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-7 bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Asset Title</label>
+                <input type="text" id="studioTitle" value="Q1 Product Launch Announcement" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Target Channel</label>
+                  <select id="studioChannel" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+                    <option value="LinkedIn">LinkedIn Post</option>
+                    <option value="Blog">Official Blog Article</option>
+                    <option value="Twitter">X / Twitter Thread</option>
+                    <option value="Ad Copy">Performance Ad Copy</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Content Type</label>
+                  <select id="studioType" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500">
+                    <option value="Text">Copywriting</option>
+                    <option value="Text + Visual">Copy + Visual Asset</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-semibold text-slate-300 uppercase">Content Copy</label>
+                  <button onclick="insertSampleViolations()" class="text-[11px] text-cyan-400 hover:underline">Insert Sample Copy with Violations</button>
+                </div>
+                <textarea id="studioContent" rows="6" oninput="debounceScan()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-cyan-500" placeholder="Draft your content here..."></textarea>
+              </div>
+
+              <div class="flex items-center justify-between pt-2">
+                <span class="text-xs text-slate-400" id="studioCharCount">0 characters</span>
+                <div class="flex gap-2">
+                  <button onclick="triggerStudioScan()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold">
+                    Scan Compliance
+                  </button>
+                  <button onclick="submitToReviewQueue()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-blue-500/20">
+                    Submit For Review
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Scan Scorecard & Auto-Fix -->
+            <div class="lg:col-span-5 bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                  <h3 class="text-sm font-bold text-white">Live Compliance Scorecard</h3>
+                  <span id="studioScoreBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300">Not Scanned</span>
+                </div>
+
+                <div id="studioViolationsContainer" class="space-y-2 mb-4">
+                  <p class="text-xs text-slate-500 text-center py-6">Enter content on the left to run automatic violation checks.</p>
+                </div>
+
+                <div id="studioSuggestionBox" class="hidden mt-4 p-4 rounded-xl bg-slate-900 border border-cyan-800/40 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-cyan-400 flex items-center gap-1">✨ AI Suggested Rewrite</span>
+                    <button onclick="applySuggestedRewrite()" class="text-[11px] px-2 py-0.5 rounded bg-cyan-600 text-white hover:bg-cyan-500">Apply Auto-Fix</button>
+                  </div>
+                  <p id="studioSuggestedText" class="text-xs text-slate-300 italic whitespace-pre-wrap"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 3: Brand Guidelines -->
+        <section id="tab-guidelines" class="hidden p-8 space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white">Brand Guidelines Constitution</h2>
+              <p class="text-sm text-slate-400 mt-1">Configurable brand governance rules, forbidden jargon, approved color codes, and mandatory disclaimers.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h3 class="text-base font-bold text-white pb-2 border-b border-slate-800">1. Brand Identity & Color Palette</h3>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase">Brand Name</label>
+                <p class="text-lg font-bold text-white" id="guideBrandName">Inkloom AI</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase">Tagline</label>
+                <p class="text-sm text-slate-300" id="guideTagline">The AI-Powered Narrative Continuity and Creative Operating System</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Approved Color Palette</label>
+                <div class="grid grid-cols-3 gap-2" id="paletteGrid"></div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                <h3 class="text-base font-bold text-white">2. Forbidden Words & AI Clichés</h3>
+                <span class="text-xs text-slate-400" id="forbiddenCount">Loading rules...</span>
+              </div>
+              <div id="forbiddenList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+
+              <div id="addForbiddenWordBox" class="pt-4 border-t border-slate-800">
+                <p class="text-xs font-bold text-slate-300 mb-2">+ Add Prohibited Term (Admin Only)</p>
+                <div class="grid grid-cols-12 gap-2">
+                  <input type="text" id="newWord" placeholder="Term (e.g. delve)" class="col-span-5 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
+                  <input type="text" id="newReason" placeholder="Reason / Replacement" class="col-span-5 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
+                  <button onclick="addForbiddenWord()" class="col-span-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold">Add</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 4: Visual Brand Checker -->
+        <section id="tab-visual" class="hidden p-8 space-y-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Visual Brand Checker</h2>
+            <p class="text-sm text-slate-400 mt-1">Audit creative assets, verify color palette adherence, and compute WCAG AA/AAA contrast ratios.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h3 class="text-base font-bold text-white">Asset Color & Contrast Inspection</h3>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Pick or Enter Hex Color</label>
+                <div class="flex items-center gap-3">
+                  <input type="color" id="visualColorPicker" value="#0284c7" onchange="document.getElementById('visualColorHex').value = this.value; checkVisualAsset();" class="w-12 h-10 rounded cursor-pointer bg-transparent border-0">
+                  <input type="text" id="visualColorHex" value="#0284c7" oninput="document.getElementById('visualColorPicker').value = this.value; checkVisualAsset();" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Estimated Contrast Ratio vs Background (1 to 21)</label>
+                <input type="range" id="contrastSlider" min="1" max="21" step="0.1" value="7.0" oninput="document.getElementById('contrastVal').innerText = this.value; checkVisualAsset();" class="w-full">
+                <div class="flex justify-between text-xs text-slate-400 mt-1">
+                  <span>Low Contrast (1.0)</span>
+                  <span id="contrastVal" class="font-bold text-cyan-400">7.0</span>
+                  <span>High Contrast (21.0)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+              <div>
+                <h3 class="text-base font-bold text-white mb-4">Verification Result</h3>
+                <div id="visualResultBox" class="p-5 rounded-xl border space-y-3"></div>
+              </div>
+              <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-xs text-slate-400">
+                <strong>Standard:</strong> Inkloom AI guidelines enforce WCAG AA (min 4.5:1) for headings and AAA (min 7.0:1) for body text copy.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 5: Review & Approvals -->
+        <section id="tab-reviews" class="hidden p-8 space-y-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Review & Approval Workflow Queue</h2>
+            <p class="text-sm text-slate-400 mt-1">Reviewer workspace for evaluating flagged AI submissions, checking compliance scorecards, and approving releases.</p>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6">
+            <h3 class="text-base font-bold text-white mb-4 flex items-center justify-between">
+              <span>Active Governance Queue</span>
+              <span class="text-xs text-slate-400" id="queueCount">Loading queue...</span>
+            </h3>
+            <div id="reviewQueueList" class="space-y-4"></div>
+          </div>
+        </section>
+
+        <!-- Tab 6: Analytics & Reports -->
+        <section id="tab-analytics" class="hidden p-8 space-y-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Analytics & Compliance Reports</h2>
+            <p class="text-sm text-slate-400 mt-1">Aggregated audit trails, violation frequency by category, and organization adherence trends.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6">
+              <h3 class="text-base font-bold text-white mb-4">Violations Frequency by Category</h3>
+              <div id="analyticsBreakdown" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <h3 class="text-base font-bold text-white">Enterprise Governance Summary</h3>
+              <div class="space-y-2 text-sm text-slate-300">
+                <div class="flex justify-between p-2.5 rounded bg-slate-900 border border-slate-800">
+                  <span>Governed Brand:</span>
+                  <strong class="text-cyan-400">Inkloom AI</strong>
+                </div>
+                <div class="flex justify-between p-2.5 rounded bg-slate-900 border border-slate-800">
+                  <span>Monitored Channels:</span>
+                  <span>LinkedIn, Blog, Twitter, Ads</span>
+                </div>
+                <div class="flex justify-between p-2.5 rounded bg-slate-900 border border-slate-800">
+                  <span>Audit Log State:</span>
+                  <span class="text-emerald-400">Immutable Trace Active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 7: Content History -->
+        <section id="tab-history" class="hidden p-8 space-y-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Content History & Audit Trail</h2>
+            <p class="text-sm text-slate-400 mt-1">Historical timeline of all content submitted, AI scans performed, and reviewer decisions.</p>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-4">Submission Title</th>
+                  <th class="p-4">Channel</th>
+                  <th class="p-4">Creator</th>
+                  <th class="p-4">AI Score</th>
+                  <th class="p-4">Status</th>
+                  <th class="p-4">Date</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody" class="divide-y divide-slate-800 text-slate-200"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Tab 8: User Management (ADMIN ONLY) -->
+        <section id="tab-users" class="hidden p-8 space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white">User Management & Permissions</h2>
+              <p class="text-sm text-slate-400 mt-1">Manage platform members, assign user roles (Admin, Creator, Reviewer), and view authentication audits.</p>
+            </div>
+            <button onclick="loadUserManagement()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <span>↻ Refresh Users</span>
+            </button>
+          </div>
+
+          <!-- User Stats Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="userStatsGrid">
+            <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+              <p class="text-xs text-slate-400 uppercase">Total Members</p>
+              <p class="text-2xl font-bold text-white mt-1" id="statTotalUsers">0</p>
+            </div>
+            <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+              <p class="text-xs text-slate-400 uppercase">Administrators</p>
+              <p class="text-2xl font-bold text-cyan-400 mt-1" id="statAdminUsers">0</p>
+            </div>
+            <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+              <p class="text-xs text-slate-400 uppercase">Creators</p>
+              <p class="text-2xl font-bold text-emerald-400 mt-1" id="statCreatorUsers">0</p>
+            </div>
+            <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+              <p class="text-xs text-slate-400 uppercase">Reviewers</p>
+              <p class="text-2xl font-bold text-amber-400 mt-1" id="statReviewerUsers">0</p>
+            </div>
+          </div>
+
+          <!-- Users Table -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="p-4">Name</th>
+                  <th class="p-4">Email</th>
+                  <th class="p-4">Current Role</th>
+                  <th class="p-4">Joined Date</th>
+                  <th class="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody" class="divide-y divide-slate-800 text-slate-200"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Tab 9: Company Settings (ADMIN ONLY) -->
+        <section id="tab-settings" class="hidden p-8 space-y-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Company Governance Settings</h2>
+            <p class="text-sm text-slate-400 mt-1">Configure organization-wide brand governance parameters and automated AI gating criteria.</p>
+          </div>
+
+          <div class="max-w-2xl bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Company / Organization Name</label>
+              <input type="text" id="settingCompanyName" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Governance Strictness Level</label>
+              <select id="settingStrictness" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+                <option value="High">High (Strict enforcement of forbidden words & mandatory disclaimers)</option>
+                <option value="Medium">Medium (Flag warnings without hard block)</option>
+                <option value="Standard">Standard (Advisory guidelines)</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <div>
+                <p class="text-xs font-bold text-white">Automated AI Content Gating</p>
+                <p class="text-[11px] text-slate-400">Block content from entering the review queue if compliance score is under 60</p>
+              </div>
+              <input type="checkbox" id="settingAIGating" checked class="w-4 h-4 rounded text-cyan-500">
+            </div>
+            <div class="pt-2">
+              <button onclick="saveCompanySettings()" class="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-cyan-500/20">
+                Save Company Settings
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= CLIENT JAVASCRIPT ================= -->
+  <script>
+    const API_BASE = 'http://127.0.0.1:5000/api';
+    let currentUser = null;
+    let authToken = localStorage.getItem('brandguard_token') || null;
+    let currentTab = 'dashboard';
+    let scanTimeout = null;
+
+    // Helper for Authenticated API Requests
+    async function apiRequest(endpoint, options = {}) {
+      const headers = options.headers || {};
+      headers['Content-Type'] = 'application/json';
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          ...options,
+          headers
+        });
+
+        if (res.status === 401) {
+          // Token expired or invalid
+          console.warn('[AUTH] Session expired or unauthorized');
+          handleLogout();
+          throw new Error('Authentication session expired. Please sign in again.');
+        }
+
+        const data = await res.json();
+        return { ok: res.ok, status: res.status, data };
+      } catch (err) {
+        console.error(`[API Error ${endpoint}]:`, err);
+        throw err;
+      }
+    }
+
+    // ---------------- AUTHENTICATION UI LOGIC ----------------
+    function switchAuthView(view) {
+      document.getElementById('loginForm').classList.toggle('hidden', view !== 'login');
+      document.getElementById('registerForm').classList.toggle('hidden', view !== 'register');
+      document.getElementById('forgotForm').classList.toggle('hidden', view !== 'forgot');
+
+      const tabs = {
+        login: document.getElementById('authTabLogin'),
+        register: document.getElementById('authTabRegister'),
+        forgot: document.getElementById('authTabForgot')
+      };
+
+      Object.keys(tabs).forEach(k => {
+        if (k === view) {
+          tabs[k].className = 'flex-1 py-3 text-xs font-semibold text-cyan-400 border-b-2 border-cyan-500 transition-all';
+        } else {
+          tabs[k].className = 'flex-1 py-3 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-all';
+        }
+      });
+
+      hideAuthAlert();
+    }
+
+    function showAuthAlert(message, type = 'error') {
+      const el = document.getElementById('authAlert');
+      el.className = `mx-6 mt-4 p-3 rounded-xl text-xs font-medium border ${
+        type === 'error' ? 'bg-rose-950/40 text-rose-300 border-rose-800/60' : 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60'
+      }`;
+      el.innerText = message;
+      el.classList.remove('hidden');
+    }
+
+    function hideAuthAlert() {
+      document.getElementById('authAlert').classList.add('hidden');
+    }
+
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function fillCredentials(email, password) {
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = password;
+      hideAuthAlert();
+    }
+
+    // Handle User Login
+    async function handleLogin(e) {
+      e.preventDefault();
+      hideAuthAlert();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+          authToken = json.token;
+          currentUser = json.user;
+          localStorage.setItem('brandguard_token', authToken);
+          localStorage.setItem('brandguard_user', JSON.stringify(currentUser));
+          initializeAuthenticatedApp();
+        } else {
+          showAuthAlert(json.message || 'Login failed. Please check your credentials.');
+        }
+      } catch (err) {
+        showAuthAlert('Unable to reach server. Please ensure the BrandGuard engine is running.');
+      }
+    }
+
+    // Handle User Registration
+    async function handleRegister(e) {
+      e.preventDefault();
+      hideAuthAlert();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const role = document.querySelector('input[name="regRole"]:checked')?.value || 'Creator';
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role })
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+          authToken = json.token;
+          currentUser = json.user;
+          localStorage.setItem('brandguard_token', authToken);
+          localStorage.setItem('brandguard_user', JSON.stringify(currentUser));
+          initializeAuthenticatedApp();
+        } else {
+          showAuthAlert(json.message || 'Registration failed.');
+        }
+      } catch (err) {
+        showAuthAlert('Registration request error: ' + err.message);
+      }
+    }
+
+    // Handle Forgot Password
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      hideAuthAlert();
+      const email = document.getElementById('forgotEmail').value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+          showAuthAlert('Reset token generated successfully below.', 'success');
+          document.getElementById('resetTokenBox').classList.remove('hidden');
+          document.getElementById('generatedResetToken').innerText = json.resetToken;
+        } else {
+          showAuthAlert(json.message || 'Password reset request failed.');
+        }
+      } catch (err) {
+        showAuthAlert('Error generating reset token.');
+      }
+    }
+
+    // Handle Reset Password with Token
+    async function handleResetPassword() {
+      const token = document.getElementById('generatedResetToken').innerText.trim();
+      const newPassword = document.getElementById('resetNewPassword').value;
+
+      if (!newPassword || newPassword.length < 6) {
+        showAuthAlert('New password must be at least 6 characters.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, newPassword })
+        });
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+          showAuthAlert('Password updated! You can now sign in with your new password.', 'success');
+          setTimeout(() => {
+            switchAuthView('login');
+            document.getElementById('loginPassword').value = '';
+          }, 1500);
+        } else {
+          showAuthAlert(json.message || 'Password reset failed.');
+        }
+      } catch (err) {
+        showAuthAlert('Error completing password reset.');
+      }
+    }
+
+    // Handle Logout
+    function handleLogout() {
+      authToken = null;
+      currentUser = null;
+      localStorage.removeItem('brandguard_token');
+      localStorage.removeItem('brandguard_user');
+      document.getElementById('authOverlay').classList.remove('hidden');
+      switchAuthView('login');
+    }
+
+    // ---------------- AUTHENTICATED APP INITIALIZATION ----------------
+    async function initializeAuthenticatedApp() {
+      // Validate session with backend /me endpoint
+      try {
+        const { ok, data } = await apiRequest('/auth/me');
+        if (ok && data.success) {
+          currentUser = data.user;
+          document.getElementById('authOverlay').classList.add('hidden');
+          setupUserInterfaceForRole();
+          loadDashboardKPIs();
+        } else {
+          handleLogout();
+        }
+      } catch (e) {
+        handleLogout();
+      }
+    }
+
+    function setupUserInterfaceForRole() {
+      if (!currentUser) return;
+
+      // Update sidebar & topbar identity
+      document.getElementById('sideUserName').innerText = currentUser.name;
+      document.getElementById('sideUserEmail').innerText = currentUser.email;
+      document.getElementById('sideUserAvatar').innerText = (currentUser.name || 'U')[0].toUpperCase();
+      document.getElementById('topUserName').innerText = currentUser.name;
+      document.getElementById('topUserRole').innerText = `role:${currentUser.role.toLowerCase()}`;
+
+      const roleBadge = document.getElementById('sideUserRoleBadge');
+      roleBadge.innerText = currentUser.role;
+      if (currentUser.role === 'Admin') {
+        roleBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 bg-blue-500/20 text-blue-400 border border-blue-500/30';
+      } else if (currentUser.role === 'Creator') {
+        roleBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      } else {
+        roleBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono font-bold shrink-0 bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      }
+
+      // Show/Hide Admin Nav Section based on Role
+      const adminNav = document.getElementById('adminNavSection');
+      adminNav.classList.toggle('hidden', currentUser.role !== 'Admin');
+
+      // Add forbidden word permission
+      const addForbiddenWordBox = document.getElementById('addForbiddenWordBox');
+      if (addForbiddenWordBox) {
+        addForbiddenWordBox.classList.toggle('hidden', currentUser.role !== 'Admin');
+      }
+
+      // Switch to default role tab
+      if (currentUser.role === 'Creator') {
+        switchTab('studio');
+      } else if (currentUser.role === 'Reviewer') {
+        switchTab('reviews');
+      } else {
+        switchTab('dashboard');
+      }
+    }
+
+    // Role-Based Route Guard for Frontend
+    function checkRoleAccess(tabId) {
+      if (!currentUser) return false;
+      const role = currentUser.role;
+
+      if (['users', 'settings'].includes(tabId)) {
+        return role === 'Admin';
+      }
+      return true;
+    }
+
+    function switchTab(tabId) {
+      if (!checkRoleAccess(tabId)) {
+        document.getElementById('accessDeniedBanner').classList.remove('hidden');
+        document.getElementById('accessDeniedMessage').innerText = `Role "${currentUser.role}" does not have permissions to access the ${tabId} module. Only Administrators have authorization.`;
+        document.querySelectorAll('section[id^="tab-"]').forEach(s => s.classList.add('hidden'));
+        return;
+      }
+
+      document.getElementById('accessDeniedBanner').classList.add('hidden');
+
+      const tabs = ['dashboard', 'studio', 'guidelines', 'visual', 'reviews', 'analytics', 'history', 'users', 'settings'];
+      tabs.forEach(t => {
+        const sec = document.getElementById('tab-' + t);
+        const nav = document.getElementById('nav-' + t);
+        if (sec) sec.classList.toggle('hidden', t !== tabId);
+        if (nav) {
+          if (t === tabId) {
+            nav.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors bg-blue-600/15 text-blue-400 border border-blue-500/30";
+          } else {
+            nav.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800/60 hover:text-white";
+          }
+        }
+      });
+
+      const titles = {
+        dashboard: 'Governance Control Center',
+        studio: 'Content Studio & Scan',
+        guidelines: 'Brand Guidelines Constitution',
+        visual: 'Visual Brand Checker',
+        reviews: 'Review & Approvals',
+        analytics: 'Analytics & Reports',
+        history: 'Content History',
+        users: 'User Management (Admin)',
+        settings: 'Company Settings (Admin)'
+      };
+      document.getElementById('pageTitle').innerText = titles[tabId] || 'Platform';
+      currentTab = tabId;
+
+      if (tabId === 'guidelines') loadGuidelines();
+      if (tabId === 'reviews') loadReviewQueue();
+      if (tabId === 'analytics') loadAnalytics();
+      if (tabId === 'history') loadHistory();
+      if (tabId === 'visual') checkVisualAsset();
+      if (tabId === 'users') loadUserManagement();
+      if (tabId === 'settings') loadCompanySettings();
+    }
+
+    // ---------------- MODULES IMPLEMENTATION ----------------
+    async function loadDashboardKPIs() {
+      try {
+        const { ok, data } = await apiRequest('/analytics');
+        if (ok && data.success) {
+          document.getElementById('kpiAdherence').innerText = data.data.metrics.adherenceRatePercent + '%';
+          document.getElementById('kpiPending').innerText = data.data.metrics.inReviewCount + data.data.metrics.changesCount;
+          document.getElementById('kpiTotal').innerText = data.data.metrics.totalSubmissions;
+          document.getElementById('kpiHours').innerText = data.data.metrics.estimatedHoursSaved + ' hrs';
+        }
+      } catch (e) {
+        console.error('API analytics offline', e);
+      }
+    }
+
+    async function runQuickDashboardScan() {
+      const text = document.getElementById('dashboardQuickInput').value;
+      if (!text) return;
+      const { ok, data } = await apiRequest('/analysis/text', {
+        method: 'POST',
+        body: JSON.stringify({ text, channel: 'LinkedIn' })
+      });
+      const box = document.getElementById('quickResult');
+      box.classList.remove('hidden');
+
+      if (ok && data.success) {
+        const d = data.data;
+        const color = d.score >= 80 ? 'border-emerald-500/40 bg-emerald-950/30' : d.score >= 60 ? 'border-amber-500/40 bg-amber-950/30' : 'border-rose-500/40 bg-rose-950/30';
+        box.className = `mt-4 p-4 rounded-xl border ${color} space-y-2`;
+        box.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white">Compliance Score: ${d.score}/100 (${d.status})</span>
+            <span class="text-xs text-slate-400">${d.violations.length} violation(s) detected</span>
+          </div>
+          ${d.violations.map(v => `<p class="text-xs text-rose-300">⚠️ [${v.severity}] ${v.message}</p>`).join('')}
+          <div class="mt-2 pt-2 border-t border-slate-800 text-xs text-cyan-300">
+            <strong>Suggested Rewrite:</strong> ${d.suggestedRewrite}
+          </div>
+        `;
+      }
+    }
+
+    function insertSampleViolations() {
+      document.getElementById('studioContent').value = "We are thrilled to unleash our platform to delve deep into narrative continuity with 100% error-free output!";
+      triggerStudioScan();
+    }
+
+    function debounceScan() {
+      clearTimeout(scanTimeout);
+      scanTimeout = setTimeout(triggerStudioScan, 500);
+      document.getElementById('studioCharCount').innerText = document.getElementById('studioContent').value.length + ' characters';
+    }
+
+    async function triggerStudioScan() {
+      const text = document.getElementById('studioContent').value;
+      const channel = document.getElementById('studioChannel').value;
+      if (!text.trim()) return;
+
+      const { ok, data } = await apiRequest('/analysis/text', {
+        method: 'POST',
+        body: JSON.stringify({ text, channel })
+      });
+
+      if (ok && data.success) {
+        const d = data.data;
+        const badge = document.getElementById('studioScoreBadge');
+        badge.innerText = `Score: ${d.score} / 100`;
+        badge.className = `text-xs font-bold px-2.5 py-1 rounded-full ${
+          d.score >= 80 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+          d.score >= 60 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+          'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+        }`;
+
+        const container = document.getElementById('studioViolationsContainer');
+        if (d.violations.length === 0) {
+          container.innerHTML = `<div class="p-4 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-emerald-300 text-xs">✓ Perfect brand compliance! No violations detected.</div>`;
+        } else {
+          container.innerHTML = d.violations.map(v => `
+            <div class="p-3 rounded-xl bg-slate-900 border border-rose-900/50 text-xs space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-rose-400">[${v.severity}] ${v.type}</span>
+                ${v.keyword ? `<span class="font-mono bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded text-[10px]">"${v.keyword}"</span>` : ''}
+              </div>
+              <p class="text-slate-300">${v.message}</p>
+            </div>
+          `).join('');
+        }
+
+        const suggBox = document.getElementById('studioSuggestionBox');
+        if (d.suggestedRewrite && d.suggestedRewrite !== text) {
+          suggBox.classList.remove('hidden');
+          document.getElementById('studioSuggestedText').innerText = d.suggestedRewrite;
+        } else {
+          suggBox.classList.add('hidden');
+        }
+      }
+    }
+
+    function applySuggestedRewrite() {
+      const rewritten = document.getElementById('studioSuggestedText').innerText;
+      document.getElementById('studioContent').value = rewritten;
+      triggerStudioScan();
+    }
+
+    async function submitToReviewQueue() {
+      const title = document.getElementById('studioTitle').value;
+      const channel = document.getElementById('studioChannel').value;
+      const content = document.getElementById('studioContent').value;
+      const contentType = document.getElementById('studioType').value;
+
+      if (!content.trim()) {
+        alert('Please enter content before submitting.');
+        return;
+      }
+
+      const { ok, data } = await apiRequest('/content/submit', {
+        method: 'POST',
+        body: JSON.stringify({
+          title,
+          channel,
+          content,
+          contentType
+        })
+      });
+
+      if (ok && data.success) {
+        alert('Content submitted to Review Queue successfully! Status: ' + data.data.status);
+        switchTab('history');
+      } else {
+        alert(data.message || 'Submission failed');
+      }
+    }
+
+    async function loadGuidelines() {
+      const { ok, data } = await apiRequest('/guidelines');
+      if (ok && data.success) {
+        const g = data.data;
+        document.getElementById('guideBrandName').innerText = g.brandName;
+        document.getElementById('guideTagline').innerText = g.tagline;
+
+        const grid = document.getElementById('paletteGrid');
+        grid.innerHTML = Object.entries(g.colorPalette).map(([key, val]) => `
+          <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-md shrink-0 border border-white/20" style="background-color: ${val}"></span>
+            <div>
+              <p class="text-[10px] text-slate-400 capitalize">${key}</p>
+              <p class="text-xs font-mono text-white font-bold">${val}</p>
+            </div>
+          </div>
+        `).join('');
+
+        const list = document.getElementById('forbiddenList');
+        document.getElementById('forbiddenCount').innerText = `${g.forbiddenWords.length} active rules`;
+        list.innerHTML = g.forbiddenWords.map(w => `
+          <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-bold text-rose-400 font-mono">"${w.word}"</span>
+              <p class="text-slate-400 text-[11px] mt-0.5">${w.reason}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function addForbiddenWord() {
+      if (currentUser?.role !== 'Admin') {
+        alert('Only Administrators can modify brand guidelines.');
+        return;
+      }
+
+      const word = document.getElementById('newWord').value;
+      const reason = document.getElementById('newReason').value;
+      if (!word || !reason) {
+        alert('Please provide word and reason');
+        return;
+      }
+      const { ok, data } = await apiRequest('/guidelines/forbidden-words', {
+        method: 'POST',
+        body: JSON.stringify({ word, reason })
+      });
+      if (ok && data.success) {
+        document.getElementById('newWord').value = '';
+        document.getElementById('newReason').value = '';
+        loadGuidelines();
+      } else {
+        alert(data.message || 'Failed to add rule');
+      }
+    }
+
+    async function checkVisualAsset() {
+      const colorHex = document.getElementById('visualColorHex').value;
+      const contrastRatio = parseFloat(document.getElementById('contrastSlider').value);
+
+      const { ok, data } = await apiRequest('/analysis/visual', {
+        method: 'POST',
+        body: JSON.stringify({ colorHex, contrastRatio })
+      });
+
+      if (ok && data.success) {
+        const d = data.data;
+        const box = document.getElementById('visualResultBox');
+        box.className = `p-5 rounded-xl border ${d.paletteMatch ? 'border-emerald-500/40 bg-emerald-950/20' : 'border-amber-500/40 bg-amber-950/20'} space-y-2`;
+        box.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-slate-400">Palette Match:</span>
+            <span class="text-xs font-bold ${d.paletteMatch ? 'text-emerald-400' : 'text-amber-400'}">
+              ${d.paletteMatch ? '✓ Approved Brand Color' : '⚠️ Deviates from Official Palette'}
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-slate-400">WCAG Contrast Rating:</span>
+            <span class="text-xs font-bold ${d.contrastPass ? 'text-emerald-400' : 'text-rose-400'} font-mono">
+              ${d.wcagRating} (${d.contrastRatio}:1)
+            </span>
+          </div>
+          <p class="text-xs text-slate-300 mt-2">${d.recommendations}</p>
+        `;
+      }
+    }
+
+    async function loadReviewQueue() {
+      const { ok, data } = await apiRequest('/reviews/queue');
+      const list = document.getElementById('reviewQueueList');
+      if (ok && data.success) {
+        document.getElementById('queueCount').innerText = `${data.data.length} item(s) pending review`;
+        if (data.data.length === 0) {
+          list.innerHTML = `<p class="text-slate-500 text-xs py-8 text-center">No pending items in queue. All submissions have been processed.</p>`;
+          return;
+        }
+
+        list.innerHTML = data.data.map(item => `
+          <div class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-bold text-white">${item.title}</h4>
+                <p class="text-xs text-slate-400">Channel: <span class="text-slate-200">${item.channel}</span> | Creator: <span class="text-slate-200">${item.creatorName}</span></p>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-full ${
+                item.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                item.status === 'Changes Requested' ? 'bg-amber-500/20 text-amber-400' :
+                'bg-blue-500/20 text-blue-400'
+              }">${item.status}</span>
+            </div>
+
+            <div class="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-xs text-slate-300 whitespace-pre-wrap">
+              ${item.originalContent}
+            </div>
+
+            ${item.violations.length > 0 ? `
+              <div class="space-y-1">
+                ${item.violations.map(v => `<p class="text-[11px] text-rose-300">⚠️ [${v.severity}] ${v.message}</p>`).join('')}
+              </div>
+            ` : ''}
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+              <span class="text-xs text-cyan-400 font-bold">AI Compliance Score: ${item.overallScore}/100</span>
+              <div class="flex gap-2">
+                <button onclick="submitDecision('${item.id}', 'Changes Requested')" class="px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 text-xs font-semibold border border-amber-600/30">Request Changes</button>
+                <button onclick="submitDecision('${item.id}', 'Rejected')" class="px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-semibold border border-rose-600/30">Reject</button>
+                <button onclick="submitDecision('${item.id}', 'Approved')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm">Approve</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function submitDecision(id, decision) {
+      const comment = prompt(`Add a reviewer note for marking this as "${decision}":`, decision === 'Approved' ? 'Approved for brand publication.' : 'Please fix the detected brand violations.');
+      if (comment === null) return;
+
+      const { ok, data } = await apiRequest(`/reviews/${id}/decision`, {
+        method: 'POST',
+        body: JSON.stringify({
+          decision,
+          comment
+        })
+      });
+
+      if (ok && data.success) {
+        loadReviewQueue();
+        loadDashboardKPIs();
+      } else {
+        alert(data.message || 'Review action failed');
+      }
+    }
+
+    async function loadAnalytics() {
+      const { ok, data } = await apiRequest('/analytics');
+      if (ok && data.success) {
+        const container = document.getElementById('analyticsBreakdown');
+        const breakdown = data.data.violationBreakdown;
+        container.innerHTML = Object.entries(breakdown).map(([type, count]) => `
+          <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-300">${type}</span>
+            <span class="text-xs font-bold text-rose-400 bg-rose-950/60 px-2.5 py-0.5 rounded border border-rose-800/40">${count} incident(s)</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function loadHistory() {
+      const { ok, data } = await apiRequest('/content');
+      if (ok && data.success) {
+        const tbody = document.getElementById('historyTableBody');
+        tbody.innerHTML = data.data.map(item => `
+          <tr class="hover:bg-slate-900/50">
+            <td class="p-4 font-semibold text-white">${item.title}</td>
+            <td class="p-4 text-slate-400">${item.channel}</td>
+            <td class="p-4 text-slate-400">${item.creatorName}</td>
+            <td class="p-4 font-mono font-bold ${item.overallScore >= 80 ? 'text-emerald-400' : 'text-amber-400'}">${item.overallScore}/100</td>
+            <td class="p-4">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
+                item.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                item.status === 'Changes Requested' ? 'bg-amber-500/20 text-amber-400' :
+                'bg-blue-500/20 text-blue-400'
+              }">${item.status}</span>
+            </td>
+            <td class="p-4 text-slate-400">${new Date(item.createdAt).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // ---------------- USER MANAGEMENT (ADMIN ONLY) ----------------
+    async function loadUserManagement() {
+      if (currentUser?.role !== 'Admin') return;
+
+      // Load Stats
+      const statsRes = await apiRequest('/users/stats');
+      if (statsRes.ok && statsRes.data.success) {
+        const s = statsRes.data.data;
+        document.getElementById('statTotalUsers').innerText = s.totalUsers;
+        document.getElementById('statAdminUsers').innerText = s.adminCount;
+        document.getElementById('statCreatorUsers').innerText = s.creatorCount;
+        document.getElementById('statReviewerUsers').innerText = s.reviewerCount;
+      }
+
+      // Load Users List
+      const res = await apiRequest('/users');
+      if (res.ok && res.data.success) {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = res.data.data.map(u => `
+          <tr class="hover:bg-slate-900/50">
+            <td class="p-4 font-bold text-white flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-slate-800 text-cyan-400 flex items-center justify-center text-[10px] font-mono">
+                ${(u.name || 'U')[0].toUpperCase()}
+              </span>
+              <span>${u.name} ${u.id === currentUser.id ? '<span class="text-[10px] text-cyan-400">(You)</span>' : ''}</span>
+            </td>
+            <td class="p-4 font-mono text-slate-300">${u.email}</td>
+            <td class="p-4">
+              <select onchange="updateUserRole('${u.id}', this.value)" ${u.id === currentUser.id ? 'disabled' : ''} class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-2 py-1 text-slate-200">
+                <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>👑 Admin</option>
+                <option value="Creator" ${u.role === 'Creator' ? 'selected' : ''}>✍️ Creator</option>
+                <option value="Reviewer" ${u.role === 'Reviewer' ? 'selected' : ''}>🔍 Reviewer</option>
+              </select>
+            </td>
+            <td class="p-4 text-slate-400">${new Date(u.createdAt).toLocaleDateString()}</td>
+            <td class="p-4 text-right">
+              ${u.id !== currentUser.id ? `
+                <button onclick="deleteUser('${u.id}', '${u.name}')" class="px-2.5 py-1 text-xs text-rose-400 hover:text-white hover:bg-rose-600/40 rounded border border-rose-800/40 transition-all">
+                  Delete
+                </button>
+              ` : '<span class="text-slate-500 text-[11px]">Protected</span>'}
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    async function updateUserRole(userId, newRole) {
+      const { ok, data } = await apiRequest(`/users/${userId}/role`, {
+        method: 'PUT',
+        body: JSON.stringify({ role: newRole })
+      });
+      if (ok && data.success) {
+        loadUserManagement();
+      } else {
+        alert(data.message || 'Failed to update user role');
+      }
+    }
+
+    async function deleteUser(userId, userName) {
+      if (!confirm(`Are you sure you want to delete user account "${userName}"?`)) return;
+
+      const { ok, data } = await apiRequest(`/users/${userId}`, {
+        method: 'DELETE'
+      });
+      if (ok && data.success) {
+        loadUserManagement();
+      } else {
+        alert(data.message || 'Failed to delete user');
+      }
+    }
+
+    // ---------------- COMPANY SETTINGS (ADMIN ONLY) ----------------
+    async function loadCompanySettings() {
+      if (currentUser?.role !== 'Admin') return;
+      const { ok, data } = await apiRequest('/users/settings/company');
+      if (ok && data.success) {
+        const s = data.data;
+        document.getElementById('settingCompanyName').value = s.companyName || 'Inkloom AI Global';
+        document.getElementById('settingStrictness').value = s.strictnessLevel || 'High';
+        document.getElementById('settingAIGating').checked = s.automatedAIGating !== false;
+      }
+    }
+
+    async function saveCompanySettings() {
+      const companyName = document.getElementById('settingCompanyName').value;
+      const strictnessLevel = document.getElementById('settingStrictness').value;
+      const automatedAIGating = document.getElementById('settingAIGating').checked;
+
+      const { ok, data } = await apiRequest('/users/settings/company', {
+        method: 'PUT',
+        body: JSON.stringify({ companyName, strictnessLevel, automatedAIGating })
+      });
+
+      if (ok && data.success) {
+        alert('Company settings updated successfully.');
+      } else {
+        alert(data.message || 'Failed to update settings');
+      }
+    }
+
+    // ---------------- INITIAL PAGE LOAD ----------------
+    // Check if token exists in localStorage
+    if (authToken) {
+      initializeAuthenticatedApp();
+    } else {
+      document.getElementById('authOverlay').classList.remove('hidden');
+      switchAuthView('login');
+    }
+  </script>
+</body>
+</html>
