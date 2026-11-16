@@ -26,6 +26,24 @@
       "passwordHash": "f7fea1a8eb41875e953c2149db3ef67006e60e15002d1cff54d4b302dc476e6a6dec0aa3c1b0f3c78ba8161dc1963639498d1919e65f679183e6f9bfb1bf4ea4",
       "role": "Reviewer",
       "createdAt": "2026-11-16T03:57:00.735Z"
+    },
+    {
+      "id": "user-1794803956639-jdw9o",
+      "name": "Nagaraj",
+      "email": "npoojary474@gmail.com",
+      "salt": "37d381b2be3a32b471362d95154f43b6",
+      "passwordHash": "174500eaa3b1838ef44445efd3bbae0d60131a98465c6f06c2312d5fe796d430159a28bc825fe0851eb93457344ea5c7037de7c640bef00b08bff08926aa0926",
+      "role": "Reviewer",
+      "createdAt": "2026-11-16T04:39:16.639Z"
+    },
+    {
+      "id": "user-1794804083724-dcnio",
+      "name": "Veda",
+      "email": "bveda223@gmail.com",
+      "salt": "3287aeb3468aa700011a1267a7dc32b0",
+      "passwordHash": "137fdb9d0fad05842b057c01e83cda18643378d3aedd64ab7dcc5c0b8cccc801234451df83ff444d57ba635d06d5315ae23cc2bec9277980286460760ec55ed1",
+      "role": "Creator",
+      "createdAt": "2026-11-16T04:41:23.724Z"
     }
   ],
   "companySettings": {
@@ -114,6 +132,54 @@
   },
   "submissions": [
     {
+      "id": "sub-1794804172498",
+      "title": "Q1 Product Launch Announcement",
+      "channel": "Ad Copy",
+      "creatorId": "user-1794804083724-dcnio",
+      "creatorName": "Veda",
+      "contentType": "Text",
+      "originalContent": "hi",
+      "suggestedContent": "hi",
+      "overallScore": 100,
+      "status": "Approved",
+      "createdAt": "2026-11-16T04:42:52.498Z",
+      "violations": [],
+      "visualAnalysis": null,
+      "reviews": [
+        {
+          "reviewerId": "user-admin-01",
+          "reviewerName": "Alex Rivera",
+          "decision": "Approved",
+          "comment": "Approved for brand publication.",
+          "timestamp": "2026-11-16T04:44:20.540Z"
+        }
+      ]
+    },
+    {
+      "id": "sub-1794803683810",
+      "title": "Q1 Product Launch Announcement",
+      "channel": "Blog",
+      "creatorId": "user-admin-01",
+      "creatorName": "Alex Rivera",
+      "contentType": "Text",
+      "originalContent": "hi",
+      "suggestedContent": "hi",
+      "overallScore": 100,
+      "status": "Approved",
+      "createdAt": "2026-11-16T04:34:43.810Z",
+      "violations": [],
+      "visualAnalysis": null,
+      "reviews": [
+        {
+          "reviewerId": "user-admin-01",
+          "reviewerName": "Alex Rivera",
+          "decision": "Approved",
+          "comment": "Approved for brand publication.",
+          "timestamp": "2026-11-16T04:36:11.174Z"
+        }
+      ]
+    },
+    {
       "id": "sub-101",
       "title": "Q1 Product Launch Announcement",
       "channel": "LinkedIn",
@@ -123,7 +189,7 @@
       "originalContent": "We are thrilled to unleash our revolutionary platform that will delve deep into manuscript continuity! It guarantees 100% error-free writing.",
       "suggestedContent": "We are excited to launch our intelligent platform that analyzes manuscript continuity with precision, helping teams craft consistent narratives at scale.",
       "overallScore": 62,
-      "status": "Changes Requested",
+      "status": "Rejected",
       "createdAt": "2026-11-14T03:57:00.735Z",
       "violations": [
         {
@@ -160,6 +226,13 @@
           "decision": "Changes Requested",
           "comment": "Please accept the AI suggested rewrite to eliminate the banned buzzwords and include the mandatory AI disclaimer.",
           "timestamp": "2026-11-15T03:57:00.735Z"
+        },
+        {
+          "reviewerId": "user-admin-01",
+          "reviewerName": "Alex Rivera",
+          "decision": "Rejected",
+          "comment": "Please fix the detected brand violations.",
+          "timestamp": "2026-11-16T04:36:03.528Z"
         }
       ]
     },

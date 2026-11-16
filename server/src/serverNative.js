@@ -1,6 +1,7 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { fileURLToPath } from 'url';
 import { db } from './data/db.js';
 import { analyzeContentText, analyzeVisualAsset } from './services/aiAnalysisEngine.js';
@@ -12,6 +13,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 5000;
+
+function getLocalIpAddresses() {
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        addresses.push(iface.address);
+      }
+    }
+  }
+  return addresses;
+}
 
 function parseJsonBody(req) {
   return new Promise((resolve) => {
@@ -92,6 +106,19 @@ const server = http.createServer(async (req, res) => {
       service: 'BrandGuard AI Governance Engine',
       version: '1.0.0',
       timestamp: new Date().toISOString()
+    });
+  }
+
+  // Network & Mobile Connection Info
+  if (pathname === '/api/network-info' && method === 'GET') {
+    const ips = getLocalIpAddresses();
+    return sendJson(res, 200, {
+      success: true,
+      localUrl: `http://localhost:${PORT}`,
+      networkUrls: ips.map(ip => `http://${ip}:${PORT}`),
+      mobileUrl: ips.length > 0 ? `http://${ips[0]}:${PORT}` : `http://localhost:${PORT}`,
+      primaryIp: ips[0] || 'localhost',
+      port: PORT
     });
   }
 
@@ -628,9 +655,20 @@ const server = http.createServer(async (req, res) => {
   return sendJson(res, 404, { success: false, message: `Route ${pathname} not found` });
 });
 
-server.listen(PORT, () => {
-  console.log(`[BrandGuard AI] Platform online at http://localhost:${PORT}`);
-  console.log(`[BrandGuard AI] Also accessible at http://127.0.0.1:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  const ips = getLocalIpAddresses();
+  const mobileLink = ips.length > 0 ? `http://${ips[0]}:${PORT}` : `http://localhost:${PORT}`;
+
+  console.log('\n============================================================');
+  console.log('       🛡️  BRANDGUARD AI – ONLINE & ACCESSIBLE              ');
+  console.log('============================================================');
+  console.log(`💻 Local PC URL:      http://localhost:${PORT}`);
+  console.log(`📱 Mobile / Wi-Fi URL: ${mobileLink}`);
+  ips.forEach(ip => {
+    if (ip !== ips[0]) console.log(`   Alt Network IP:    http://${ip}:${PORT}`);
+  });
+  console.log('🌐 Public Access:     Run "start-public.bat" for global HTTPS link');
+  console.log('============================================================\n');
 });
 
 export default server;
