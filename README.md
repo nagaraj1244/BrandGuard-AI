@@ -3,6 +3,29 @@
 
 ---
 
+## 🚀 Live Cloud Deployment & Mobile Access
+
+### 1-Click Free Cloud Deployment (Render.com)
+Deploy BrandGuard AI online in 60 seconds with a permanent public HTTPS URL accessible on any mobile phone, tablet, or PC worldwide:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/nagaraj1244/BrandGuard-AI)
+
+**Easy Steps:**
+1. Click the **Deploy to Render** button above (or sign in to [render.com](https://render.com) with GitHub).
+2. Connect the repository: `nagaraj1244/BrandGuard-AI`.
+3. Click **"Deploy Web Service"**.
+4. In under 2 minutes, Render gives you a permanent live public URL (e.g. `https://brandguard-ai.onrender.com`) that opens on any smartphone or computer with one click!
+
+---
+
+### Instant Mobile Connect from your PC
+In your `BrandGuard-AI` folder, double-click:
+📁 **`open-on-mobile.bat`**
+
+It automatically generates a secure public HTTPS link that you can open on any mobile device (iPhone/Android) or share with anyone.
+
+---
+
 ## 🛡️ Overview
 
 **BrandGuard AI** is an enterprise brand governance and AI compliance platform designed to prevent identity drift, eliminate repetitive AI clichés, catch unverified claims, enforce mandatory disclaimers, and audit visual brand identity across multi-channel generative workflows.

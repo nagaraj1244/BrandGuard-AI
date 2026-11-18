@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: brandguard-ai
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/src/index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20

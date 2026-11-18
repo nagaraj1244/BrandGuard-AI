@@ -74,7 +74,9 @@ function requireAuth(req, res, allowedRoles = []) {
   }
 }
 
-const server = http.createServer(async (req, res) => {
+let currentServer = null;
+
+const requestHandler = async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = url.pathname;
   const method = req.method;
@@ -112,13 +114,15 @@ const server = http.createServer(async (req, res) => {
   // Network & Mobile Connection Info
   if (pathname === '/api/network-info' && method === 'GET') {
     const ips = getLocalIpAddresses();
+    const addr = currentServer ? currentServer.address() : null;
+    const currentPort = addr ? addr.port : PORT;
     return sendJson(res, 200, {
       success: true,
-      localUrl: `http://localhost:${PORT}`,
-      networkUrls: ips.map(ip => `http://${ip}:${PORT}`),
-      mobileUrl: ips.length > 0 ? `http://${ips[0]}:${PORT}` : `http://localhost:${PORT}`,
+      localUrl: `http://localhost:${currentPort}`,
+      networkUrls: ips.map(ip => `http://${ip}:${currentPort}`),
+      mobileUrl: ips.length > 0 ? `http://${ips[0]}:${currentPort}` : `http://localhost:${currentPort}`,
       primaryIp: ips[0] || 'localhost',
-      port: PORT
+      port: currentPort
     });
   }
 
@@ -655,20 +659,40 @@ const server = http.createServer(async (req, res) => {
   return sendJson(res, 404, { success: false, message: `Route ${pathname} not found` });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  const ips = getLocalIpAddresses();
-  const mobileLink = ips.length > 0 ? `http://${ips[0]}:${PORT}` : `http://localhost:${PORT}`;
+function startServer(port) {
+  const s = http.createServer(requestHandler);
+  currentServer = s;
 
-  console.log('\n============================================================');
-  console.log('       🛡️  BRANDGUARD AI – ONLINE & ACCESSIBLE              ');
-  console.log('============================================================');
-  console.log(`💻 Local PC URL:      http://localhost:${PORT}`);
-  console.log(`📱 Mobile / Wi-Fi URL: ${mobileLink}`);
-  ips.forEach(ip => {
-    if (ip !== ips[0]) console.log(`   Alt Network IP:    http://${ip}:${PORT}`);
+  s.once('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      const busyPort = port;
+      const nextPort = Number(busyPort) + 1;
+      console.warn(`[BrandGuard AI] Notice: Port ${busyPort} is already in use by another instance.`);
+      console.log(`[BrandGuard AI] ➜ Automatically switching to port ${nextPort}...`);
+      startServer(nextPort);
+    } else {
+      console.error('[BrandGuard AI] Fatal server error:', err);
+    }
   });
-  console.log('🌐 Public Access:     Run "start-public.bat" for global HTTPS link');
-  console.log('============================================================\n');
-});
 
-export default server;
+  s.listen(port, '0.0.0.0', () => {
+    const ips = getLocalIpAddresses();
+    const activePort = s.address().port;
+    const mobileLink = ips.length > 0 ? `http://${ips[0]}:${activePort}` : `http://localhost:${activePort}`;
+
+    console.log('\n============================================================');
+    console.log('       🛡️  BRANDGUARD AI – ONLINE & ACCESSIBLE              ');
+    console.log('============================================================');
+    console.log(`💻 Local PC URL:      http://localhost:${activePort}`);
+    console.log(`📱 Mobile / Wi-Fi URL: ${mobileLink}`);
+    ips.forEach(ip => {
+      if (ip !== ips[0]) console.log(`   Alt Network IP:    http://${ip}:${activePort}`);
+    });
+    console.log('🌐 Public Access:     Run "start-public.bat" for global HTTPS link');
+    console.log('============================================================\n');
+  });
+}
+
+startServer(PORT);
+
+export default currentServer;
